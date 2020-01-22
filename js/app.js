@@ -37,24 +37,19 @@ fetch(url)
         for (let i = 0; i < (ph / box); i++) {
             for (let j = 0; j < (pw / box); j++) {
                 console.log(i, j);
-
             }
-
         }
 
         function drawPoster() {
-            const strDataURI = `https://image.tmdb.org/t/p/w${pw}_and_h${ph}_bestv2${movies[item].poster_path}`
+            const strDataURI = `https://image.tmdb.org/t/p/w${pw}_and_h${ph}_bestv2${movies[item].poster_path}`;
             var img = new Image;
             img.onload = function () {
-                ctx.drawImage(img, 0, 0); // Or at whatever offset you like
+                ctx.drawImage(img, 0, 0);
             };
             img.src = strDataURI;
         }
-        // image.addEventListener('load', e => {
-        //     ctx.drawImage(image, 33, 71, 104, 124, 21, 20, 87, 104);
-        // });
+
+        drawPoster();
 
 
     });
-
-
