@@ -60,11 +60,34 @@ const posterReveal = (movies, item) => {
             draw = false;
         })
     };
+
+    const revealBtn = document.getElementById("reveal");
+    revealBtn.addEventListener("click", () => {
+        ctx.drawImage(img, 0, 0)
+    })
+
+    const submitBtn = document.getElementById("submit");
+    submitBtn.addEventListener("click", () => {
+        const fields = document.querySelectorAll('input');
+        response = "";
+        fields.forEach((el, i) => {
+            response += el.value;
+        })
+        if (response.toLowerCase() == answerString.toLowerCase()) {
+            document.getElementById('text').innerText = "BRAWO!";
+            ctx.drawImage(img, 0, 0)
+
+        } else {
+            document.getElementById('text').innerText = "ŹLE"
+        }
+    })
 }
 
 
 const newMovie = () => {
-    const url = `https://api.themoviedb.org/3/movie/top_rated?api_key=a7a279b94f7be340c3155d4b7df30384&language=en-US&page=${rand(1, 10)}`;
+    const url = `https://api.themoviedb.org/3/discover/movie?api_key=a7a279b94f7be340c3155d4b7df30384&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=${rand(1, 10)}&with_genres=16`;
+    // const url = `https://api.themoviedb.org/3/discover/movie?api_key=a7a279b94f7be340c3155d4b7df30384&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=${rand(1, 10)}`;
+    // const url = `https://api.themoviedb.org/3/movie/top_rated?api_key=a7a279b94f7be340c3155d4b7df30384&language=en-US&page=${rand(1, 10)}`;
     fetch(url)
         .then((response) => {
             return response.json();
@@ -85,34 +108,18 @@ const newMovie = () => {
                     answer.innerHTML += `<input type="text" name="${i}" required minlength="1" maxlength="1" size="1">`;
                 }
             }
-
             fieldFocus();
-
             posterReveal(movies, item);
 
-            console.log(answerString);
         });
 }
 
-const refreshBtn = document.getElementById("refresh");
-refreshBtn.addEventListener("click", () => {
+const skipBtn = document.getElementById("skip");
+skipBtn.addEventListener("click", () => {
+    document.getElementById('text').innerText = ""
     newMovie();
 })
 
-const submitBtn = document.getElementById("submit");
-submitBtn.addEventListener("click", () => {
-    const fields = document.querySelectorAll('input');
-    response = "";
-    fields.forEach((el, i) => {
-        response += el.value;
-    })
-    if (response.toLowerCase() == answerString.toLowerCase()) {
-        document.getElementById('text').innerText = "BRAWO!"
-    } else {
-        document.getElementById('text').innerText = "ŹLE"
-    }
-
-})
 
 
 newMovie();
