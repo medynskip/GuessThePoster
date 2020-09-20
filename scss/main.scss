@@ -3,12 +3,21 @@ body {
     flex-direction: column;
 }
 
+button {
+    cursor: pointer;
+}
+
 .game {
     text-align: center;
 }
 
 canvas {
     border: 1px solid #000;
+    cursor: url('/images/magnifier-01.png'), pointer;
+}
+
+#calculate {
+    display: none;
 }
 
 #answer {

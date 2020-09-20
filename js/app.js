@@ -1,10 +1,21 @@
-const pw = 300;
-const ph = 450;
-const box = 20;
+const pw = 600;
+const ph = 900;
+const box = 12;
 let answerString = "";
 let response = "";
+let points = 0;
+
+const canvas = document.getElementById('poster');
+const calculate = document.getElementById('calculate');
+const ctx = canvas.getContext('2d');
+const ctxCalc = calculate.getContext('2d');
+const img = new Image;
+const scratch = new Image;
 
 const answer = document.getElementById("answer");
+const scoreCurrent = document.getElementById('score-current')
+const scoreTotal = document.getElementById('score-total')
+
 const allowed = `ABCDEFGHIJKLMNOPQRSTUWVXYZabcdefghijklmnopqrstuwvxyz0123456789`;
 
 const rand = (min, max) => {
@@ -29,35 +40,62 @@ const fieldFocus = () => {
     })
 }
 
-const posterReveal = (movies, item) => {
-    const canvas = document.getElementById('poster');
-    canvas.width = pw;
-    canvas.height = ph;
-    const ctx = canvas.getContext('2d');
-    const strDataURI = `https://image.tmdb.org/t/p/w${pw}_and_h${ph}_bestv2${movies[item].poster_path}`;
+const drawCanvas = (canvas, x, y) => {
+    canvas.forEach((e) => {
+        e.beginPath();
+        e.arc(x + 12, y + 12, box, 0, 2 * Math.PI);
+        e.fill();
+    })
+}
 
-    const img = new Image;
+const countPoints = (canvas) => {
+    let pointCount = 0;
+    const colorData = canvas.getImageData(0, 0, pw, ph);
+    for (let i = 0; i < colorData.data.length; i += 4) {
+        colorData.data[i] > 0 ? pointCount += 1 : pointCount += 0;
+    }
+    points = Math.round(1000 * (pointCount / (ph * pw)));
+    console.log(points);
+    scoreCurrent.innerText = 1000 - points;
+}
+
+const posterReveal = (movies, item) => {
+    // const canvas = document.getElementById('poster');
+    // const calculate = document.getElementById('calculate');
+    // const ctx = canvas.getContext('2d');
+    // const ctxCalc = calculate.getContext('2d');
+    // const img = new Image;
+    // const scratch = new Image;
+
+    scratch.onload = () => {
+        ctx.drawImage(scratch, 0, 0);
+        ctxCalc.clearRect(0, 0, calculate.width, calculate.height)
+    }
+
+
+    const strDataURI = `https://image.tmdb.org/t/p/w${pw}_and_h${ph}_bestv2${movies[item].poster_path}`;
     img.src = strDataURI;
+    scratch.src = "../images/scratch.jpg";
 
     let draw = false;
-    img.onload = function () {
+    img.onload = () => {
         ctx.fillStyle = ctx.createPattern(img, "no-repeat");
+        ctxCalc.fillStyle = 'red';
         canvas.addEventListener("mousedown", (e) => {
             draw = true;
-            ctx.beginPath();
-            ctx.arc(e.offsetX, e.offsetY, box, 0, 2 * Math.PI);
-            ctx.fill();
+            drawCanvas([ctx, ctxCalc], e.offsetX, e.offsetY);
+            // drawCanvas(ctxCalc, e.offsetX, e.offsetY);
         })
 
         canvas.addEventListener("mousemove", (e) => {
             if (draw == true) {
-                ctx.beginPath();
-                ctx.arc(e.offsetX, e.offsetY, box, 0, 2 * Math.PI);
-                ctx.fill();
+                drawCanvas([ctx, ctxCalc], e.offsetX, e.offsetY);
+                // drawCanvas(ctxCalc, e.offsetX, e.offsetY);
             }
         })
         document.addEventListener("mouseup", (e) => {
             draw = false;
+            countPoints(ctxCalc);
         })
     };
 
@@ -66,21 +104,7 @@ const posterReveal = (movies, item) => {
         ctx.drawImage(img, 0, 0)
     })
 
-    const submitBtn = document.getElementById("submit");
-    submitBtn.addEventListener("click", () => {
-        const fields = document.querySelectorAll('input');
-        response = "";
-        fields.forEach((el, i) => {
-            response += el.value;
-        })
-        if (response.toLowerCase() == answerString.toLowerCase()) {
-            document.getElementById('text').innerText = "BRAWO!";
-            ctx.drawImage(img, 0, 0)
 
-        } else {
-            document.getElementById('text').innerText = "ŹLE"
-        }
-    })
 }
 
 
@@ -118,8 +142,25 @@ const skipBtn = document.getElementById("skip");
 skipBtn.addEventListener("click", () => {
     document.getElementById('text').innerText = ""
     newMovie();
+    scoreCurrent.innerText = 1000;
 })
 
-
+const submitBtn = document.getElementById("submit");
+submitBtn.addEventListener("click", () => {
+    const fields = document.querySelectorAll('input');
+    response = "";
+    fields.forEach((el, i) => {
+        response += el.value;
+    })
+    if (response.toLowerCase() == answerString.toLowerCase()) {
+        document.getElementById('text').innerText = "BRAWO!";
+        ctx.drawImage(img, 0, 0);
+        let total = 0;
+        total = parseInt(scoreTotal.innerText) + parseInt(scoreCurrent.innerText);
+        scoreTotal.innerText = total;
+    } else {
+        document.getElementById('text').innerText = "ŹLE"
+    }
+})
 
 newMovie();
