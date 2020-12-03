@@ -12,12 +12,18 @@ button {
     text-align: center;
 }
 
+.canvas-container {
+    height: auto;
+    margin: 0 auto;
+    z-index: -1;
+}
+
 canvas {
-    // border: 1px solid #000;
     cursor: url('/images/magnifier-01.png'), pointer;
     -webkit-box-shadow: 3px 3px 4px 0px rgba(87, 87, 87, 1);
     -moz-box-shadow: 3px 3px 4px 0px rgba(87, 87, 87, 1);
     box-shadow: 3px 3px 4px 0px rgba(87, 87, 87, 1);
+    z-index: 1;
 }
 
 #calculate {
@@ -25,7 +31,5 @@ canvas {
 }
 
 #answer {
-    // display: flex;
     padding: 20px;
-    // flex-wrap: wrap;
 }

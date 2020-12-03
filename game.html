@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Guess The Movie</title>
+    <!-- <link rel="stylesheet" href="css/style.css"> -->
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+
+<body>
+    <div class="game">
+        <div class="slide">Question <span id="slide-number">0</span> out of 10</div>
+        <div class="score-box">YOUR SCORE: <span id="score-total">0</span> pts</div>
+        <div class="score-current">CURRENT TURN: <span id="score-current">1000</span> pts</div>
+        <!-- <div class="canvas-container">
+            <canvas id="poster"></canvas>
+            <canvas id="calculate"></canvas>
+        </div> -->
+
+        <!-- <canvas id="poster"></canvas>
+        <canvas id="calculate"></canvas> -->
+
+        <canvas id="poster" width="1920" height="800"></canvas>
+        <canvas id="calculate" width="1920" height="800"></canvas>
+
+
+        <div id="answer"></div>
+
+        <button id="skip">Next</button>
+        <button id="reveal">Reveal</button>
+        <button id="submit">Submit</button>
+        <div id="text"></div>
+        <div id="json"></div>
+    </div>
+
+
+    <script type="module" src="js/app.js"></script>
+</body>
+
+</html>
