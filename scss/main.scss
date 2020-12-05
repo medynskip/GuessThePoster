@@ -8,14 +8,9 @@ button {
     cursor: pointer;
 }
 
-.game {
+#game {
     text-align: center;
-}
-
-.canvas-container {
-    height: auto;
-    margin: 0 auto;
-    z-index: -1;
+    position: relative;
 }
 
 canvas {
@@ -32,4 +27,16 @@ canvas {
 
 #answer {
     padding: 20px;
+}
+
+#loader {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(87, 87, 87, 0.8);
+    top: 0;
+    left: 0;
 }

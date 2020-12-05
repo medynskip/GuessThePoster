@@ -1,31 +1,32 @@
 import {
     data
-} from './data.js';
+} from './movies.js';
 
 const canvas = document.getElementById('poster');
 const calculate = document.getElementById('calculate');
+const ctx = canvas.getContext('2d');
+const ctxCalc = calculate.getContext('2d');
 
 const pw = document.documentElement.clientWidth < 1200 ? (document.documentElement.clientWidth - 100) : 1100;
-const ph = pw / 2.4;
+const ph = Math.round(pw / 1.77);
 
 canvas.width = pw;
 canvas.height = ph;
 calculate.width = pw;
 calculate.height = ph;
 
-const ctx = canvas.getContext('2d');
-const ctxCalc = calculate.getContext('2d');
+
 const img = new Image;
 const scratch = new Image;
 
 const box = 32;
 let answerString = "";
-let response = "";
 let currentPoints = 0;
 let totalPoints = 0;
 let slide = 0;
-const movies = [...data];
 let draw = false;
+// let loading = false;
+const movies = [...data];
 
 const answer = document.getElementById("answer");
 const scoreCurrent = document.getElementById('score-current');
@@ -33,11 +34,24 @@ const scoreTotal = document.getElementById('score-total');
 const submitBtn = document.getElementById("submit");
 const nextBtn = document.getElementById("skip");
 const revealBtn = document.getElementById("reveal");
+const newBtn = document.getElementById("new");
 
 const allowed = `ABCDEFGHIJKLMNOPQRSTUWVXYZabcdefghijklmnopqrstuwvxyz0123456789`;
 
 const rand = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+const loading = () => {
+    let loader = document.createElement('div');
+    loader.innerHTML = '<img src="/images/spinner.svg" alt="spinner" />';
+    loader.id = 'loader';
+    document.getElementById("game").appendChild(loader);
+}
+
+const unloading = () => {
+    var el = document.getElementById('loader');
+    el.remove();
 }
 
 const checkButton = (key, position, fields) => {
@@ -112,6 +126,34 @@ const initiateCanvases = (currentImage) => {
     ctxCalc.fillStyle = 'red';
 }
 
+const generateImage = (file_path) => {
+
+    const strDataURI = `https://image.tmdb.org/t/p/w1280${file_path}`;
+    console.log(strDataURI);
+    // const strDataURI = `http://image.tmdb.org/t/p/w1920_and_h800_multi_faces${file_path}`;
+    img.src = strDataURI;
+    scratch.src = "../images/scratch.jpg";
+
+    img.onload = () => {
+        unloading();
+        initiateCanvases(img)
+        canvas.addEventListener("mousedown", mouseDownHandle);
+        canvas.addEventListener("mousemove", mouseMoveHandle);
+        canvas.addEventListener("mouseup", mouseUpHandle);
+    };
+}
+
+const fetchImage = (id) => {
+    const url = `https://api.themoviedb.org/3/movie/${id}/images?api_key=a7a279b94f7be340c3155d4b7df30384&language=null`;
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            const index = rand(0, data.backdrops.length)
+            const imgPath = data.backdrops[index].file_path;
+            generateImage(imgPath);
+        })
+}
+
 const posterReveal = (item) => {
     submitBtn.disabled = false;
     revealBtn.disabled = false;
@@ -121,16 +163,19 @@ const posterReveal = (item) => {
         ctxCalc.clearRect(0, 0, calculate.width, calculate.height)
     }
 
-    const strDataURI = `http://image.tmdb.org/t/p/w1920_and_h800_multi_faces/${movies[item].img}`;
-    img.src = strDataURI;
-    scratch.src = "../images/scratch.jpg";
+    fetchImage(movies[item].id);
 
-    img.onload = () => {
-        initiateCanvases(img)
-        canvas.addEventListener("mousedown", mouseDownHandle);
-        canvas.addEventListener("mousemove", mouseMoveHandle);
-        canvas.addEventListener("mouseup", mouseUpHandle);
-    };
+    // const strDataURI = `http://image.tmdb.org/t/p/w1920_and_h800_multi_faces/${movies[item].img}`;
+    // img.src = strDataURI;
+    // scratch.src = "../images/scratch.jpg";
+
+    // img.onload = () => {
+    //     unloading();
+    //     initiateCanvases(img)
+    //     canvas.addEventListener("mousedown", mouseDownHandle);
+    //     canvas.addEventListener("mousemove", mouseMoveHandle);
+    //     canvas.addEventListener("mouseup", mouseUpHandle);
+    // };
 }
 
 const createInputs = (item) => {
@@ -168,11 +213,15 @@ revealBtn.addEventListener("click", () => {
     ctx.drawImage(img, 0, 0, pw, ph);
     submitBtn.disabled = true;
     revealBtn.disabled = true;
+    const fields = document.querySelectorAll('input');
+    fields.forEach((el, i) => {
+        el.value = answerString[i];
+    })
 })
 
 submitBtn.addEventListener("click", () => {
     const fields = document.querySelectorAll('input');
-    response = "";
+    let response = "";
     fields.forEach((el, i) => {
         response += el.value;
     })
@@ -184,11 +233,17 @@ submitBtn.addEventListener("click", () => {
         scoreTotal.innerText = totalPoints;
         submitBtn.disabled = true;
         revealBtn.disabled = true;
+        nextBtn.focus();
     } else {
         document.getElementById('text').innerText = "ŹLE"
     }
 })
 
+newBtn.addEventListener("click", () => {
+    slide = 0;
+    totalPoints = 0;
+    getRecords();
+})
 
 const getRecords = () => {
     // const urls = [];
@@ -224,18 +279,14 @@ const getRecords = () => {
     //     })
     // console.log(movies);
     slide += 1;
-    console.log(slide);
     if (slide <= 10) {
+        loading();
         document.getElementById("slide-number").innerText = slide;
         newMovie();
         slide == 10 ? nextBtn.innerText = "Summary" : null;
     } else {
         alert(`Gratulacje, zdobyles ${totalPoints} punktów`)
     }
-
-
-
-
 }
 
 window.onload = function () {
