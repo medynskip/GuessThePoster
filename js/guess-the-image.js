@@ -1,5 +1,6 @@
 import { data } from "./movies.js";
 import { Controls } from "./controls.js";
+import { Scoreboard } from "./scoreboard.js";
 
 const canvas = document.getElementById("poster");
 const calculate = document.getElementById("calculate");
@@ -20,21 +21,14 @@ calculate.height = ph;
 const img = new Image();
 const scratch = new Image();
 
-const box = 32;
-let answerString = "";
-let currentPoints = 0;
-let totalPoints = 0;
+const controls = new Controls();
+const scoreboard = new Scoreboard();
+
+const box = Math.round(pw / 50);
+
 let slide = 0;
 let draw = false;
 const movies = [...data];
-
-const answer = document.getElementById("answer");
-const scoreCurrent = document.getElementById("score-current");
-const scoreTotal = document.getElementById("score-total");
-
-const controls = new Controls();
-
-const allowed = `ABCDEFGHIJKLMNOPQRSTUWVXYZabcdefghijklmnopqrstuwvxyz0123456789`;
 
 const rand = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -87,8 +81,7 @@ const countPoints = (canvas) => {
   for (let i = 0; i < colorData.data.length; i += 4) {
     colorData.data[i] > 0 ? (revealed += 1) : revealed;
   }
-  currentPoints = 1000 - Math.round(1000 * (revealed / (ph * pw)));
-  scoreCurrent.innerText = currentPoints;
+  scoreboard.updateCurrent(revealed / (ph * pw));
 };
 
 const mouseDownHandle = (e) => {
@@ -157,37 +150,15 @@ const posterReveal = (item) => {
   fetchImage(movies[item].id);
 };
 
-const createInputs = (item) => {
-  const words = movies[item].title.split(" ");
-  let generated = ``;
-  for (let i = 0; i < words.length; i++) {
-    generated += `<span>`;
-    for (let j = 0; j < words[i].length; j++) {
-      if (allowed.indexOf(words[i][j]) == -1) {
-        generated += `<span> ${words[i][j]} </span>`;
-      } else {
-        answerString += words[i][j];
-        generated += `<input type="text" name="${
-          (i, j)
-        }" required minlength="1" maxlength="1" size="1">`;
-      }
-    }
-    generated += `</span>`;
-  }
-  answer.innerHTML = generated;
-};
-
 const newMovie = () => {
   let index = rand(0, movies.length);
-  answer.innerHTML = "";
-  answerString = "";
   posterReveal(index);
-  createInputs(index);
+  controls.createInputs(movies[index]);
   fieldFocus();
 };
 
 const nextBtnEvents = () => {
-  scoreCurrent.innerText = 1000;
+  scoreboard.resetCurrent();
   clearMouseHandlers();
   getRecords();
 };
@@ -195,27 +166,17 @@ const nextBtnEvents = () => {
 const revealBtnEvents = () => {
   clearMouseHandlers();
   ctx.drawImage(img, 0, 0, pw, ph);
-  const fields = document.querySelectorAll("input");
-  fields.forEach((el, i) => {
-    el.value = answerString[i];
-  });
-};
-
-const checkAnswer = (response) => {
-  return response.toLowerCase() == answerString.toLowerCase();
 };
 
 const submitBtnEvents = () => {
   clearMouseHandlers();
   ctx.drawImage(img, 0, 0, pw, ph);
-  totalPoints += currentPoints;
-  scoreTotal.innerText = totalPoints;
+  scoreboard.updateTotal();
 };
 
 const newBtnEvents = () => {
   slide = 0;
-  totalPoints = 0;
-  scoreTotal.innerText = totalPoints;
+  scoreboard.resetTotal();
   getRecords();
 };
 
@@ -229,21 +190,17 @@ const getRecords = () => {
       ? (controls.next.innerText = "Summary")
       : (controls.next.innerText = "Next");
   } else {
-    nextBtn.disabled = true;
-    submitBtn.disabled = true;
-    revealBtn.disabled = true;
-    alert(`Gratulacje, zdobyles ${totalPoints} punktów`);
+    controls.disable();
+    alert(`Gratulacje, zdobyles ${scoreboard.total} punktów`);
   }
 };
 
 window.onload = function () {
-  controls.register();
   controls.subscribe({
     nextBtnEvents,
     revealBtnEvents,
     submitBtnEvents,
     newBtnEvents,
-    checkAnswer,
   });
   getRecords();
 };
