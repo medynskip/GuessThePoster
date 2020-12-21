@@ -1,33 +1,12 @@
 import { data } from "./movies.js";
 import { Controls } from "./controls.js";
 import { Scoreboard } from "./scoreboard.js";
-
-const canvas = document.getElementById("poster");
-const calculate = document.getElementById("calculate");
-const ctx = canvas.getContext("2d");
-const ctxCalc = calculate.getContext("2d");
-
-const pw =
-  document.documentElement.clientWidth < 1200
-    ? document.documentElement.clientWidth - 100
-    : 1100;
-const ph = Math.round(pw / 1.77);
-
-canvas.width = pw;
-canvas.height = ph;
-calculate.width = pw;
-calculate.height = ph;
-
-const img = new Image();
-const scratch = new Image();
+import { Gameboard } from "./gameboard.js";
 
 const controls = new Controls();
 const scoreboard = new Scoreboard();
+const gameboard = new Gameboard();
 
-const box = Math.round(pw / 50);
-
-let slide = 0;
-let draw = false;
 const movies = [...data];
 
 const rand = (min, max) => {
@@ -46,87 +25,40 @@ const unloading = () => {
   el.remove();
 };
 
-const checkButton = (key, position, fields) => {
-  if (key == "Backspace" && position > 0) {
-    fields[position - 1].select();
-  } else if (key == "Backspace" && position == 0) {
-    fields[position].focus();
-  } else if (position == fields.length - 1) {
-    document.getElementById("submit").focus();
-  } else {
-    fields[position + 1].select();
-  }
-};
-
-const fieldFocus = () => {
-  const fields = document.querySelectorAll("input");
-  fields.forEach((el, i) => {
-    el.addEventListener("keyup", (e) => {
-      checkButton(e.code, i, fields);
-    });
-  });
-};
-
-const drawCanvas = (canvas, x, y) => {
-  canvas.forEach((e) => {
-    e.beginPath();
-    e.arc(x + 12, y + 12, box, 0, 2 * Math.PI);
-    e.fill();
-  });
-};
-
-const countPoints = (canvas) => {
-  let revealed = 0;
-  const colorData = canvas.getImageData(0, 0, pw, ph);
-  for (let i = 0; i < colorData.data.length; i += 4) {
-    colorData.data[i] > 0 ? (revealed += 1) : revealed;
-  }
-  scoreboard.updateCurrent(revealed / (ph * pw));
-};
-
 const mouseDownHandle = (e) => {
-  draw = true;
-  drawCanvas([ctx, ctxCalc], e.offsetX, e.offsetY);
-  countPoints(ctxCalc);
+  gameboard.drawing = true;
+  gameboard.drawCanvas(e.offsetX, e.offsetY);
+  // countPoints(ctxCalc);
 };
 
 const mouseMoveHandle = (e) => {
-  if (draw == true) {
-    drawCanvas([ctx, ctxCalc], e.offsetX, e.offsetY);
-    countPoints(ctxCalc);
+  if (gameboard.drawing == true) {
+    gameboard.drawCanvas(e.offsetX, e.offsetY);
   }
 };
 
 const mouseUpHandle = (e) => {
-  draw = false;
+  gameboard.drawing = false;
+  scoreboard.updateCurrent(gameboard.countPoints());
 };
 
-const clearMouseHandlers = () => {
-  canvas.removeEventListener("mousedown", mouseDownHandle);
-  canvas.removeEventListener("mousemove", mouseMoveHandle);
-  canvas.removeEventListener("mouseup", mouseUpHandle);
-};
-
-const initiateCanvases = (currentImage) => {
-  const tempCanvas = document.createElement("canvas");
-  const tempCtx = tempCanvas.getContext("2d");
-  tempCanvas.width = pw;
-  tempCanvas.height = ph;
-  tempCtx.drawImage(currentImage, 0, 0, pw, ph);
-  ctx.fillStyle = ctx.createPattern(tempCanvas, "no-repeat");
-  ctxCalc.fillStyle = "red";
-};
+// const createCanvasFill = (currentImage) => {
+//   const tempCanvas = document.createElement("canvas");
+//   const tempCtx = tempCanvas.getContext("2d");
+//   tempCanvas.width = pw;
+//   tempCanvas.height = ph;
+//   tempCtx.drawImage(currentImage, 0, 0, pw, ph);
+//   gameboard.ctx.fillStyle = ctx.createPattern(tempCanvas, "no-repeat");
+//   gameboard.ctxPointCanvas.fillStyle = "red";
+// };
 
 const generateImage = (file_path) => {
   const strDataURI = `https://image.tmdb.org/t/p/w1280${file_path}`;
-  img.src = strDataURI;
-  scratch.src = "../images/scratch.jpg";
-  img.onload = () => {
+  gameboard.image.src = strDataURI;
+  gameboard.image.onload = () => {
     unloading();
-    initiateCanvases(img);
-    canvas.addEventListener("mousedown", mouseDownHandle);
-    canvas.addEventListener("mousemove", mouseMoveHandle);
-    canvas.addEventListener("mouseup", mouseUpHandle);
+    gameboard.createFill();
+    gameboard.addMouseHandlers(mouseDownHandle, mouseMoveHandle, mouseUpHandle);
   };
 };
 
@@ -141,52 +73,42 @@ const fetchImage = (id) => {
     });
 };
 
-const posterReveal = (item) => {
-  controls.enable();
-  scratch.onload = () => {
-    ctx.drawImage(scratch, 0, 0, pw, ph);
-    ctxCalc.clearRect(0, 0, calculate.width, calculate.height);
-  };
-  fetchImage(movies[item].id);
-};
-
-const newMovie = () => {
+const newQuestion = () => {
   let index = rand(0, movies.length);
-  posterReveal(index);
   controls.createInputs(movies[index]);
-  fieldFocus();
+  controls.fieldFocus();
+  controls.enable();
+  gameboard.clearCanvases();
+  fetchImage(movies[index].id);
 };
 
 const nextBtnEvents = () => {
   scoreboard.resetCurrent();
-  clearMouseHandlers();
-  getRecords();
+  gameboard.clearMouseHandlers(mouseDownHandle, mouseMoveHandle, mouseUpHandle);
+  nextTurn();
 };
 
 const revealBtnEvents = () => {
-  clearMouseHandlers();
-  ctx.drawImage(img, 0, 0, pw, ph);
+  gameboard.clearMouseHandlers(mouseDownHandle, mouseMoveHandle, mouseUpHandle);
+  gameboard.ctx.drawImage(gameboard.image, 0, 0, gameboard.pw, gameboard.ph);
 };
 
 const submitBtnEvents = () => {
-  clearMouseHandlers();
-  ctx.drawImage(img, 0, 0, pw, ph);
+  gameboard.clearMouseHandlers(mouseDownHandle, mouseMoveHandle, mouseUpHandle);
+  gameboard.ctx.drawImage(gameboard.image, 0, 0, gameboard.pw, gameboard.ph);
   scoreboard.updateTotal();
 };
 
 const newBtnEvents = () => {
-  slide = 0;
-  scoreboard.resetTotal();
-  getRecords();
+  newGame();
 };
 
-const getRecords = () => {
-  slide += 1;
-  if (slide <= 10) {
+const nextTurn = () => {
+  scoreboard.slideUp();
+  if (scoreboard.slide <= 10) {
     loading();
-    document.getElementById("slide-number").innerText = slide;
-    newMovie();
-    slide == 10
+    newQuestion();
+    scoreboard.slide == 10
       ? (controls.next.innerText = "Summary")
       : (controls.next.innerText = "Next");
   } else {
@@ -195,12 +117,18 @@ const getRecords = () => {
   }
 };
 
-window.onload = function () {
+const newGame = () => {
+  scoreboard.slide = 0;
+  scoreboard.resetTotal();
   controls.subscribe({
     nextBtnEvents,
     revealBtnEvents,
     submitBtnEvents,
     newBtnEvents,
   });
-  getRecords();
+  nextTurn();
+};
+
+window.onload = function () {
+  gameboard.register(newGame);
 };

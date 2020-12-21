@@ -7,44 +7,72 @@
 }
 
 html {
-  font-size: 12px;
+  font-size: 10px;
 }
 
 @media screen and (min-width: 500px) {
   html {
-    font-size: 14px;
+    font-size: 12px;
+  }
+  #game {
+    max-width: 460px;
   }
 }
 
 @media screen and (min-width: 620px) {
   html {
-    font-size: 16px;
+    font-size: 14px;
+  }
+  #game {
+    max-width: 580px;
   }
 }
 
 @media screen and (min-width: 720px) {
   html {
-    font-size: 18px;
+    font-size: 16px;
+  }
+  #game {
+    max-width: 680px;
   }
 }
 
 @media screen and (min-width: 860px) {
   html {
-    font-size: 20px;
+    font-size: 18px;
+  }
+  #game {
+    max-width: 820px;
   }
 }
 
 @media screen and (min-width: 1000px) {
   html {
+    font-size: 20px;
+  }
+  #game {
+    max-width: 960px;
+  }
+}
+@media screen and (min-width: 1200px) {
+  html {
     font-size: 22px;
+  }
+  #game {
+    max-width: 1160px;
   }
 }
 
 body {
   font-family: "Oswald", sans-serif;
+  background-color: rgb(219, 219, 219);
   display: flex;
-  flex-direction: column;
-  font-size: 40px;
+  width: 100vw;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+  // flex-direction: column;
+  // font-size: 40px;
 
   a {
     color: inherit;
@@ -53,8 +81,8 @@ body {
 }
 
 .welcome {
-  width: 100vw;
-  height: 100vh;
+  // width: 100vw;
+  // height: 100vh;
 
   a.blocks {
     display: inline-block;
@@ -117,13 +145,31 @@ input {
 #game {
   text-align: center;
   position: relative;
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 5px;
+  -webkit-box-shadow: 0px 1px 3px 2px rgba(0, 0, 0, 0.25);
+  -moz-box-shadow: 0px 1px 3px 2px rgba(0, 0, 0, 0.25);
+  box-shadow: 0px 1px 3px 2px rgba(0, 0, 0, 0.25);
+
+  .scoreboard {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 30px;
+    .score-total {
+      font-size: 3rem;
+    }
+    .current-turn {
+      font-size: 1.6rem;
+    }
+  }
 }
 
 canvas {
   cursor: url("/images/magnifier-01.png"), pointer;
-  -webkit-box-shadow: 3px 3px 4px 0px rgba(87, 87, 87, 1);
-  -moz-box-shadow: 3px 3px 4px 0px rgba(87, 87, 87, 1);
-  box-shadow: 3px 3px 4px 0px rgba(87, 87, 87, 1);
+  // -webkit-box-shadow: 3px 3px 4px 0px rgba(87, 87, 87, 1);
+  // -moz-box-shadow: 3px 3px 4px 0px rgba(87, 87, 87, 1);
+  // box-shadow: 3px 3px 4px 0px rgba(87, 87, 87, 1);
   z-index: 1;
 }
 
@@ -141,8 +187,8 @@ canvas {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   background-color: rgba(87, 87, 87, 0.8);
   top: 0;
   left: 0;

@@ -12,12 +12,18 @@
 
 <body>
     <div id="game">
-        <div class="slide">Question <span id="slide-number">0</span> out of 10</div>
-        <div class="score-box">YOUR SCORE: <span id="score-total">0</span> pts</div>
-        <div class="score-current">CURRENT TURN: <span id="score-current">1000</span> pts</div>
+        <div class="scoreboard">
+            <div class="score-total">YOUR SCORE: <span id="score-total">0</span> pts</div>
+            <div class="current-turn">
+                <div class="slide">Question <span id="slide-number">0</span> out of 10</div>
+            <div class="score-current">CURRENT TURN: <span id="score-current">1000</span> pts</div>
+            </div>
+            
+        </div>
+        
 
-        <canvas id="poster"></canvas>
-        <canvas id="calculate"></canvas>
+        <canvas id="canvas"></canvas>
+        <!-- <canvas id="calculate"></canvas> -->
 
         <div id="answer"></div>
 

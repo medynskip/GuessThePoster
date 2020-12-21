@@ -2,16 +2,11 @@ export class Scoreboard {
   constructor() {
     this.current = 1000;
     this.total = 0;
+    this.slide = 0;
     this.currentDisplay = document.getElementById("score-current");
     this.totalDisplay = document.getElementById("score-total");
-    // this.currentDisplay = "";
-    // this.totalDisplay = "";
+    this.slideDisplay = document.getElementById("slide-number");
   }
-
-  //   register() {
-  //     this.currentDisplay = document.getElementById("score-current");
-  //     this.totalDisplay = document.getElementById("score-total");
-  //   }
 
   updateTotal() {
     this.total += this.current;
@@ -33,10 +28,8 @@ export class Scoreboard {
     this.total = 0;
     this.totalDisplay.innerText = this.total;
   }
-
-  //   resetCurrent() {
-
-  //   }
-
-  //   register();
+  slideUp() {
+    this.slide += 1;
+    this.slideDisplay.innerText = this.slide;
+  }
 }

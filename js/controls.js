@@ -43,6 +43,27 @@ export class Controls {
     return response;
   }
 
+  checkButton(key, position, fields) {
+    if (key == "Backspace" && position > 0) {
+      fields[position - 1].select();
+    } else if (key == "Backspace" && position == 0) {
+      fields[position].focus();
+    } else if (position == fields.length - 1) {
+      document.getElementById("submit").focus();
+    } else {
+      fields[position + 1].select();
+    }
+  }
+
+  fieldFocus() {
+    const fields = document.querySelectorAll("input");
+    fields.forEach((el, i) => {
+      el.addEventListener("keyup", (e) => {
+        this.checkButton(e.code, i, fields);
+      });
+    });
+  }
+
   subscribe(callback) {
     this.next.addEventListener("click", () => {
       document.getElementById("text").innerText = "";
