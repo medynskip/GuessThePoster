@@ -6,12 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Guess The Movie</title>
-    <!-- <link rel="stylesheet" href="css/style.css"> -->
     <link rel="stylesheet" href="/css/main.css">
 </head>
 
 <body>
-    <div id="game">
+        <div class="navbar">
+        <div class="container">
+            <div class="logo"><a href="/">Logo</a></div>
+            <div class="menu"><nav>Menu</nav></div>
+            
+        </div>
+    </div>
+    <div id="game" class="game container">
         <div class="scoreboard">
             <div class="score-total">YOUR SCORE: <span id="score-total">0</span> pts</div>
             <div class="current-turn">
@@ -35,7 +41,7 @@
     </div>
 
 
-    <script type="module" src="js/guess-the-image.js"></script>
+    <script type="module" src="js/guessing-game.js"></script>
 </body>
 
 </html>

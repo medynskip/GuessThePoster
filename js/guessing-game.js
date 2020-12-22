@@ -1,4 +1,6 @@
-import { data } from "./movies.js";
+import { dataSeries } from "./data-series.js";
+import { dataMovies } from "./data-movies.js";
+import { dataPeople } from "./data-people.js";
 import { Controls } from "./controls.js";
 import { Scoreboard } from "./scoreboard.js";
 import { Gameboard } from "./gameboard.js";
@@ -7,7 +9,35 @@ const controls = new Controls();
 const scoreboard = new Scoreboard();
 const gameboard = new Gameboard();
 
-const movies = [...data];
+let records = "";
+
+const getRecords = () => {
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const type = urlParams.get("guess");
+  switch (type) {
+    case "movies":
+      return {
+        type: "movie",
+        data: [...dataMovies],
+      };
+    case "kids":
+      return {
+        type: "movie",
+        data: [...dataMovies],
+      };
+    case "actors":
+      return {
+        type: "person",
+        data: [...dataPeople],
+      };
+    case "tv":
+      return {
+        type: "tv",
+        data: [...dataSeries],
+      };
+  }
+};
 
 const rand = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -42,16 +72,6 @@ const mouseUpHandle = (e) => {
   scoreboard.updateCurrent(gameboard.countPoints());
 };
 
-// const createCanvasFill = (currentImage) => {
-//   const tempCanvas = document.createElement("canvas");
-//   const tempCtx = tempCanvas.getContext("2d");
-//   tempCanvas.width = pw;
-//   tempCanvas.height = ph;
-//   tempCtx.drawImage(currentImage, 0, 0, pw, ph);
-//   gameboard.ctx.fillStyle = ctx.createPattern(tempCanvas, "no-repeat");
-//   gameboard.ctxPointCanvas.fillStyle = "red";
-// };
-
 const generateImage = (file_path) => {
   const strDataURI = `https://image.tmdb.org/t/p/w1280${file_path}`;
   gameboard.image.src = strDataURI;
@@ -63,23 +83,27 @@ const generateImage = (file_path) => {
 };
 
 const fetchImage = (id) => {
-  const url = `https://api.themoviedb.org/3/movie/${id}/images?api_key=a7a279b94f7be340c3155d4b7df30384&language=null`;
+  // const url = `https://api.themoviedb.org/3/movie/${id}/images?api_key=a7a279b94f7be340c3155d4b7df30384&language=null`;
+  const url = `https://api.themoviedb.org/3/${records.type}/${id}/images?api_key=a7a279b94f7be340c3155d4b7df30384`;
+  console.log(url);
   fetch(url)
     .then((res) => res.json())
     .then((data) => {
-      const index = rand(0, data.backdrops.length - 1);
-      const imgPath = data.backdrops[index].file_path;
+      const path =
+        records.type == "person" ? [...data.profiles] : [...data.backdrops];
+      const index = rand(0, path.length - 1);
+      const imgPath = path[index].file_path;
       generateImage(imgPath);
     });
 };
 
 const newQuestion = () => {
-  let index = rand(0, movies.length);
-  controls.createInputs(movies[index]);
+  let index = rand(0, records.data.length);
+  controls.createInputs(records.data[index]);
   controls.fieldFocus();
   controls.enable();
   gameboard.clearCanvases();
-  fetchImage(movies[index].id);
+  fetchImage(records.data[index].id);
 };
 
 const nextBtnEvents = () => {
@@ -129,6 +153,47 @@ const newGame = () => {
   nextTurn();
 };
 
+// const getResults = () => {
+//   const dataset = [];
+//   const urls = [];
+//   // People
+//   // const url = `https://api.themoviedb.org/3/person/popular?api_key=a7a279b94f7be340c3155d4b7df30384&page=`;
+//   // TV Series
+//   const url = `https://api.themoviedb.org/3/discover/tv?language=en-US&sort_by=popularity.desc&vote_count.gte=1000&api_key=a7a279b94f7be340c3155d4b7df30384&page=`;
+//   for (let i = 1; i <= 10; i++) {
+//     urls.push(fetch(url + i));
+//   }
+//   Promise.all(urls)
+//     .then(function (responses) {
+//       return Promise.all(
+//         responses.map(function (response) {
+//           return response.json();
+//         })
+//       );
+//     })
+//     .then(function (data) {
+//       for (let x = 0; x < data.length; x++) {
+//         dataset.push(...data[x].results);
+//       }
+//       let result = ``;
+//       dataset.map((el) => {
+//         result += `
+//         {<br />
+//     id: ${el.id},<br />
+//     img: '${el.backdrop_path}',<br />
+//     title: '${el.name}'<br />
+// },
+
+//         `;
+//       });
+//       document.getElementById("text").innerHTML = result;
+
+//       console.log(dataset);
+//     });
+// };
+
 window.onload = function () {
+  // getResults();
+  records = getRecords();
   gameboard.register(newGame);
 };
